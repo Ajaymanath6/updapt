@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { getUserById, getSiteById, getMetricById, removeAssignment } from '../../lib/esgMockData';
+import { getUserById, getSiteById, getMetricById, removeAssignment, esgMockData, updateAssignment } from '../../lib/esgMockData';
 import CloseLineIcon from 'remixicon-react/CloseLineIcon';
 import AlertLineIcon from 'remixicon-react/AlertLineIcon';
 import Button from '../common/Button';
@@ -12,7 +12,20 @@ import { useToast } from '../common/Toast';
  */
 const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [selectedSiteId, setSelectedSiteId] = useState('');
+  const [selectedMetricId, setSelectedMetricId] = useState('');
   const { showSuccess, showError } = useToast();
+
+  // Initialize edit form when assignment changes
+  useEffect(() => {
+    if (assignment) {
+      setSelectedSiteId(assignment.siteId);
+      setSelectedMetricId(assignment.metricId);
+      setIsEditing(false);
+      setShowConfirmation(false);
+    }
+  }, [assignment]);
 
   if (!isOpen || !assignment) return null;
 
@@ -20,12 +33,60 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
   const site = getSiteById(assignment.siteId);
   const metric = getMetricById(assignment.metricId);
 
+  // Check if changes were made
+  const hasChanges = selectedSiteId !== assignment.siteId || selectedMetricId !== assignment.metricId;
+
+  // Handle save edit
+  const handleSaveEdit = () => {
+    try {
+      // For now, we'll simulate updating by removing old and creating new
+      // In a real app, you'd have an updateAssignment function
+      const oldSite = getSiteById(assignment.siteId);
+      const oldMetric = getMetricById(assignment.metricId);
+      const newSite = getSiteById(selectedSiteId);
+      const newMetric = getMetricById(selectedMetricId);
+      
+      // Log the change (audit log simulation)
+      console.log('AUDIT LOG: Assignment edited', {
+        user: user?.name,
+        from: `${oldSite?.name} → ${oldMetric?.name}`,
+        to: `${newSite?.name} → ${newMetric?.name}`,
+        timestamp: new Date().toISOString()
+      });
+      
+      // Update the assignment
+      assignment.siteId = selectedSiteId;
+      assignment.metricId = selectedMetricId;
+      
+      showSuccess(`Assignment updated: ${user?.name} → ${newSite?.name} → ${newMetric?.name}`);
+      
+      // Notify parent component
+      if (onAssignmentChange) {
+        onAssignmentChange();
+      }
+      
+      // Close modal
+      handleClose();
+    } catch (error) {
+      showError('Failed to update assignment. Please try again.');
+      console.error('Error updating assignment:', error);
+    }
+  };
+
   // Handle remove
   const handleRemove = () => {
     try {
       const result = removeAssignment(assignment.id);
       
       if (result) {
+        // Log the deletion (audit log simulation)
+        console.log('AUDIT LOG: Assignment deleted', {
+          user: user?.name,
+          site: site?.name,
+          metric: metric?.name,
+          timestamp: new Date().toISOString()
+        });
+        
         showSuccess('Assignment removed successfully');
       } else {
         showError('Failed to remove assignment');
@@ -191,36 +252,62 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                     >
                       Site
                     </label>
-                    <div 
-                      className="rounded-lg"
-                      style={{
-                        padding: '12px',
-                        backgroundColor: 'rgba(249, 249, 249, 1)',
-                        border: '1px solid rgba(229, 229, 229, 1)',
-                        borderRadius: '6px'
-                      }}
-                    >
-                      <div 
+                    {isEditing ? (
+                      <select
+                        value={selectedSiteId}
+                        onChange={(e) => setSelectedSiteId(e.target.value)}
                         style={{
+                          width: '100%',
+                          padding: '12px',
+                          backgroundColor: 'rgba(255, 255, 255, 1)',
+                          border: '1px solid rgba(229, 229, 229, 1)',
+                          borderRadius: '6px',
                           fontSize: '14px',
                           fontWeight: 500,
                           lineHeight: '20px',
                           letterSpacing: '-0.03em',
-                          color: 'rgba(26, 26, 26, 1)'
+                          color: 'rgba(26, 26, 26, 1)',
+                          cursor: 'pointer'
                         }}
                       >
-                        {site?.name}
-                      </div>
+                        {esgMockData.sites.map(s => (
+                          <option key={s.id} value={s.id}>
+                            {s.name} - {s.group}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
                       <div 
+                        className="rounded-lg"
                         style={{
-                          fontSize: '12px',
-                          lineHeight: '16px',
-                          color: 'rgba(87, 87, 87, 1)'
+                          padding: '12px',
+                          backgroundColor: 'rgba(249, 249, 249, 1)',
+                          border: '1px solid rgba(229, 229, 229, 1)',
+                          borderRadius: '6px'
                         }}
                       >
-                        {site?.group}
+                        <div 
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            lineHeight: '20px',
+                            letterSpacing: '-0.03em',
+                            color: 'rgba(26, 26, 26, 1)'
+                          }}
+                        >
+                          {site?.name}
+                        </div>
+                        <div 
+                          style={{
+                            fontSize: '12px',
+                            lineHeight: '16px',
+                            color: 'rgba(87, 87, 87, 1)'
+                          }}
+                        >
+                          {site?.group}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* Metric Info */}
@@ -239,36 +326,62 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                     >
                       Metric
                     </label>
-                    <div 
-                      className="rounded-lg"
-                      style={{
-                        padding: '12px',
-                        backgroundColor: 'rgba(249, 249, 249, 1)',
-                        border: '1px solid rgba(229, 229, 229, 1)',
-                        borderRadius: '6px'
-                      }}
-                    >
-                      <div 
+                    {isEditing ? (
+                      <select
+                        value={selectedMetricId}
+                        onChange={(e) => setSelectedMetricId(e.target.value)}
                         style={{
+                          width: '100%',
+                          padding: '12px',
+                          backgroundColor: 'rgba(255, 255, 255, 1)',
+                          border: '1px solid rgba(229, 229, 229, 1)',
+                          borderRadius: '6px',
                           fontSize: '14px',
                           fontWeight: 500,
                           lineHeight: '20px',
                           letterSpacing: '-0.03em',
-                          color: 'rgba(26, 26, 26, 1)'
+                          color: 'rgba(26, 26, 26, 1)',
+                          cursor: 'pointer'
                         }}
                       >
-                        {metric?.name}
-                      </div>
+                        {esgMockData.metrics.map(m => (
+                          <option key={m.id} value={m.id}>
+                            {m.name} ({m.category})
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
                       <div 
+                        className="rounded-lg"
                         style={{
-                          fontSize: '12px',
-                          lineHeight: '16px',
-                          color: 'rgba(87, 87, 87, 1)'
+                          padding: '12px',
+                          backgroundColor: 'rgba(249, 249, 249, 1)',
+                          border: '1px solid rgba(229, 229, 229, 1)',
+                          borderRadius: '6px'
                         }}
                       >
-                        {metric?.category}
+                        <div 
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            lineHeight: '20px',
+                            letterSpacing: '-0.03em',
+                            color: 'rgba(26, 26, 26, 1)'
+                          }}
+                        >
+                          {metric?.name}
+                        </div>
+                        <div 
+                          style={{
+                            fontSize: '12px',
+                            lineHeight: '16px',
+                            color: 'rgba(87, 87, 87, 1)'
+                          }}
+                        >
+                          {metric?.category}
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -283,15 +396,43 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                   gap: '12px'
                 }}
               >
-                <Button variant="secondary" onClick={handleClose}>
-                  Close
-                </Button>
-                <Button 
-                  variant="danger" 
-                  onClick={() => setShowConfirmation(true)}
-                >
-                  Remove Assignment
-                </Button>
+                <div>
+                  <Button 
+                    variant="danger" 
+                    onClick={() => setShowConfirmation(true)}
+                  >
+                    Remove Assignment
+                  </Button>
+                </div>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                  {isEditing ? (
+                    <>
+                      <Button variant="secondary" onClick={() => {
+                        setSelectedSiteId(assignment.siteId);
+                        setSelectedMetricId(assignment.metricId);
+                        setIsEditing(false);
+                      }}>
+                        Cancel
+                      </Button>
+                      <Button 
+                        variant="primary" 
+                        onClick={handleSaveEdit}
+                        disabled={!hasChanges}
+                      >
+                        Save Changes
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="secondary" onClick={handleClose}>
+                        Close
+                      </Button>
+                      <Button variant="primary" onClick={() => setIsEditing(true)}>
+                        Edit Assignment
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </>
           ) : (
