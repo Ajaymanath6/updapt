@@ -1,0 +1,564 @@
+# Cubictree Banking Platform - Cursor Rules
+
+## Project Overview
+B2B web application for managing digital asset auctions and ad publishing. Built for internal bank employees as power users.
+
+## Technology Stack
+- Framework: React 19.1.1 with Vite
+- Styling: Tailwind CSS 3.4.18
+- Routing: React Router DOM 7.9.5
+- Icons: Remix Icons 1.0.0
+- Charts: Recharts 3.3.0
+
+## Design Principles
+
+### 1. Responsive Web Design (RWD)
+**Mobile-First Approach:**
+- Design for smallest screens first, then enhance for larger screens
+- Use Tailwind's responsive prefixes: `sm:`, `md:`, `lg:`, `xl:`, `2xl:`
+
+**Breakpoints:**
+```css
+sm:  640px   // Small phones
+md:  768px   // Tablets (portrait)
+lg:  1024px  // Tablets (landscape) / Small desktops
+xl:  1280px  // Desktops
+2xl: 1536px  // Large desktops
+```
+
+**Required for this project:**
+- Desktop (1024px+): Primary target
+- Tablet (768px-1023px): Full support required
+- Mobile (<768px): Nice to have, but not primary focus
+
+### 2. Fluid Layouts
+- Use relative units: `%`, `rem`, `em`, `vw`, `vh`
+- Avoid fixed pixel widths except for specific UI elements
+- Use Tailwind's max-width utilities: `max-w-screen-xl`, `max-w-7xl`
+- Container padding: `px-4 md:px-6 lg:px-8`
+
+### 3. Flexible Images & Media
+- Images: `w-full h-auto` or `object-cover` for aspect ratios
+- Use `aspect-ratio` utilities: `aspect-video`, `aspect-square`
+- Always provide fallback for images
+- Use responsive image loading: lazy loading when appropriate
+
+### 4. Grid Systems
+**Responsive Grids:**
+```jsx
+// Example patterns to follow:
+grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4    // Stats/KPIs
+grid grid-cols-1 lg:grid-cols-3                    // Dashboard layout
+grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3    // Card grids
+```
+
+### 5. Typography
+**Responsive Text Sizing:**
+- Headings: Use responsive text utilities
+  - h1: `text-2xl md:text-3xl lg:text-4xl`
+  - h2: `text-xl md:text-2xl lg:text-3xl`
+  - h3: `text-lg md:text-xl`
+- Body: `text-sm md:text-base`
+- Fine print: `text-xs`
+
+**Line Heights:**
+- Tight: `leading-tight` for headings
+- Normal: `leading-normal` for body
+- Relaxed: `leading-relaxed` for long-form content
+
+### 6. Spacing & Padding
+**Responsive Spacing:**
+- Small devices: `p-4 gap-4`
+- Medium devices: `md:p-6 md:gap-6`
+- Large devices: `lg:p-8 lg:gap-8`
+
+**Container Margins:**
+- Use consistent spacing scale: `space-y-4`, `space-y-6`, `space-y-8`
+
+## Layout Principles
+
+### 1. Flexbox Usage
+**Common Patterns:**
+```jsx
+// Horizontal layout with space between
+flex justify-between items-center
+
+// Centered content
+flex items-center justify-center
+
+// Vertical stack
+flex flex-col space-y-4
+
+// Responsive flex direction
+flex flex-col md:flex-row
+```
+
+### 2. Grid Usage
+**Dashboard Layouts:**
+- 4-column grid for KPIs on desktop → 2 columns on tablet → 1 column on mobile
+- 3-column layout for main content
+- Use `gap-4` or `gap-6` for consistent spacing
+
+**Card Grids:**
+- Auto-fit for flexible columns: Use standard grid patterns
+- Maintain consistent card heights with `h-full`
+
+### 3. Sidebar Layout
+**Collapsible Sidebar (Implemented):**
+- Expanded: `w-64` (256px) - Default state
+- Collapsed: `w-20` (80px) - Icon-only view
+- Toggle button in top-right corner
+- Smooth transitions: `transition-all duration-300 ease-in-out`
+- User preference saved in localStorage
+- Tooltips show labels when collapsed
+
+**Desktop (lg+):**
+- Fully functional collapsible sidebar
+- Smooth animations and transitions
+- Tooltips on hover when collapsed
+
+**Tablet (md):**
+- Same collapsible functionality
+- Provides more screen space when needed
+
+**Mobile (sm):**
+- Future: Auto-collapse or overlay mode
+
+### 4. Navigation Patterns
+**Desktop:**
+- Persistent sidebar navigation
+- Horizontal header with search
+
+**Tablet:**
+- Maintain sidebar OR use bottom navigation
+- Compact header
+
+**Mobile:**
+- Hamburger menu
+- Bottom navigation bar
+
+## Component Guidelines
+
+### 1. Buttons
+```jsx
+// Base button classes (already implemented)
+px-4 py-2           // Standard padding
+rounded-lg          // Rounded corners
+font-medium         // Medium weight
+transition-colors   // Smooth transitions
+
+// With icon (already implemented)
+flex items-center gap-2
+```
+
+### 2. Cards
+```jsx
+// Base card (already implemented)
+bg-white rounded-lg shadow-sm border border-gray-200
+
+// Responsive card padding
+p-4 md:p-5 lg:p-6
+
+// Card in grid
+h-full  // Ensure equal heights
+```
+
+### 3. Tables
+**Desktop:**
+- Full table with all columns
+- Horizontal scroll if needed: `overflow-x-auto`
+
+**Tablet:**
+- Maintain table OR
+- Hide less important columns: `hidden md:table-cell`
+
+**Mobile:**
+- Card-based layout instead of table
+
+### 4. Forms
+**Input Fields:**
+```jsx
+// Responsive input
+w-full px-4 py-2
+border border-gray-300 rounded-lg
+focus:outline-none focus:ring-2 focus:ring-blue-500
+```
+
+**Form Layouts:**
+- Single column on mobile
+- Multi-column on desktop: `grid grid-cols-1 md:grid-cols-2 gap-4`
+
+### 5. Modals & Overlays
+**Responsive Modals:**
+```jsx
+// Container
+fixed inset-0 z-50 overflow-y-auto
+
+// Modal content
+w-full max-w-md md:max-w-lg lg:max-w-2xl
+mx-auto my-8 px-4
+```
+
+## Color System
+
+### Primary Colors
+- Blue: Primary actions, links, active states
+  - `bg-blue-600`, `text-blue-600`, `border-blue-500`
+  - Hover: `hover:bg-blue-700`
+
+### Status Colors
+- Green: Success, Active, Published
+  - `bg-green-600`, `bg-green-100`, `text-green-800`
+- Yellow: Warning, Pending, Scheduled
+  - `bg-yellow-600`, `bg-yellow-100`, `text-yellow-800`
+- Red: Danger, Error, Critical
+  - `bg-red-600`, `bg-red-100`, `text-red-800`
+- Gray: Neutral, Closed, Inactive
+  - `bg-gray-600`, `bg-gray-100`, `text-gray-800`
+
+### Backgrounds
+- Page: `bg-gray-50`
+- Card: `bg-white`
+- Hover: `hover:bg-gray-50` or `hover:bg-gray-100`
+
+### Text Colors
+- Primary: `text-gray-900`
+- Secondary: `text-gray-600`
+- Muted: `text-gray-500`
+- Placeholder: `text-gray-400`
+
+## Accessibility (A11Y)
+
+### 1. Semantic HTML
+- Use proper heading hierarchy: h1 → h2 → h3
+- Use `<nav>`, `<main>`, `<header>`, `<footer>`
+- Use `<button>` for actions, `<a>` for navigation
+
+### 2. ARIA Labels
+```jsx
+// Navigation
+<nav aria-label="Main navigation">
+
+// Buttons without text
+<button aria-label="Close menu">
+
+// Form inputs
+<label htmlFor="search">Search</label>
+<input id="search" />
+```
+
+### 3. Focus States
+- Always include focus styles: `focus:outline-none focus:ring-2`
+- Use focus-visible for keyboard-only focus
+- Maintain logical tab order
+
+### 4. Color Contrast
+- Text on background: Minimum 4.5:1 ratio
+- Large text: Minimum 3:1 ratio
+- Use Tailwind's default colors (they're accessible)
+
+## Performance Guidelines
+
+### 1. Code Splitting
+- Use dynamic imports for large pages
+- Lazy load charts and heavy components
+```jsx
+const Chart = lazy(() => import('./Chart'));
+```
+
+### 2. Image Optimization
+- Use appropriate image formats (WebP, AVIF)
+- Implement lazy loading: `loading="lazy"`
+- Provide responsive images with srcset
+
+### 3. Bundle Size
+- Keep vendor bundle under 200KB (gzipped)
+- Monitor bundle size in build output
+- Use tree-shaking
+
+### 4. Rendering Performance
+- Memoize expensive computations: `useMemo`
+- Prevent unnecessary re-renders: `memo`, `useCallback`
+- Virtualize long lists
+
+## Clean Code Principles
+
+### 1. Component Structure
+```jsx
+// 1. Imports
+import { useState } from 'react';
+import PropTypes from 'prop-types';
+
+// 2. Component
+const Component = ({ prop1, prop2 }) => {
+  // 3. Hooks
+  const [state, setState] = useState();
+  
+  // 4. Handlers
+  const handleClick = () => {};
+  
+  // 5. Render
+  return <div>...</div>;
+};
+
+// 6. PropTypes
+Component.propTypes = {
+  prop1: PropTypes.string.isRequired,
+};
+
+// 7. Export
+export default Component;
+```
+
+### 2. Naming Conventions
+- Components: PascalCase - `ButtonComponent`, `UserProfile`
+- Functions: camelCase - `handleClick`, `fetchData`
+- Constants: UPPER_CASE - `API_URL`, `MAX_ITEMS`
+- Files: PascalCase for components - `Button.jsx`
+
+### 3. File Organization
+```
+src/
+├── components/
+│   ├── common/         # Shared UI components
+│   ├── [module]/       # Module-specific components
+│   └── layout/         # Layout components
+├── pages/              # Page components
+├── layouts/            # Layout wrappers
+├── lib/                # Utilities, helpers
+├── hooks/              # Custom hooks
+└── utils/              # Pure utility functions
+```
+
+### 4. Props Guidelines
+- Max 5-7 props per component
+- Use object destructuring
+- Provide default values
+- Document complex props with JSDoc
+```jsx
+/**
+ * @param {Object} props
+ * @param {string} props.title - The card title
+ * @param {boolean} props.active - Active state
+ */
+```
+
+### 5. DRY Principle
+- Extract repeated JSX into components
+- Create custom hooks for repeated logic
+- Use constants for repeated values
+- Centralize styling patterns
+
+### 6. Single Responsibility
+- Each component does ONE thing
+- If > 150 lines, consider splitting
+- Separate logic from presentation
+- Keep render methods simple
+
+## State Management
+
+### 1. Local State
+- Use `useState` for component-level state
+- Use `useReducer` for complex state logic
+
+### 2. Props Drilling
+- Max 2-3 levels of prop drilling
+- Beyond that, use Context or state management
+
+### 3. Context API
+```jsx
+// For shared state across multiple components
+const ThemeContext = createContext();
+
+// Provider at app level
+<ThemeContext.Provider value={theme}>
+```
+
+### 4. Forms
+- Use controlled components
+- Implement proper validation
+- Show error messages clearly
+
+## Error Handling
+
+### 1. Error Boundaries
+- Wrap major sections in error boundaries
+- Provide fallback UI
+- Log errors for debugging
+
+### 2. User Feedback
+- Show loading states
+- Display error messages clearly
+- Provide retry options
+
+### 3. Validation
+- Validate user input
+- Show inline validation errors
+- Use proper error styling
+
+## Testing Considerations
+
+### 1. Component Testing
+- Test user interactions
+- Test different states
+- Test accessibility
+
+### 2. Visual Testing
+- Test on different screen sizes
+- Test in different browsers
+- Test with browser dev tools
+
+### 3. Manual Testing Checklist
+- [ ] All pages load without errors
+- [ ] Navigation works correctly
+- [ ] Forms validate properly
+- [ ] Responsive on tablet (768px-1023px)
+- [ ] Responsive on desktop (1024px+)
+- [ ] Images load with fallbacks
+- [ ] Icons display correctly
+- [ ] No console errors
+- [ ] Smooth transitions and animations
+
+## Browser Support
+
+### Target Browsers
+- Chrome/Edge (latest 2 versions)
+- Firefox (latest 2 versions)
+- Safari (latest 2 versions)
+
+### Fallbacks
+- Use CSS Grid with fallback
+- Use Flexbox (widely supported)
+- Provide SVG fallbacks for icons
+- Test in target browsers
+
+## Git & Version Control
+
+### Commit Messages
+```
+feat: Add new auction table component
+fix: Resolve responsive layout issue on tablets
+refactor: Simplify button component logic
+docs: Update README with setup instructions
+style: Format code with Prettier
+```
+
+### Branch Naming
+- feature/auction-management
+- bugfix/sidebar-responsive
+- hotfix/production-error
+
+## Documentation Requirements
+
+### Component Documentation
+- JSDoc comments for complex components
+- PropTypes for all props
+- README for major features
+
+### Code Comments
+- Explain WHY, not WHAT
+- Document complex algorithms
+- Note any workarounds or hacks
+
+## Security Considerations
+
+### Input Handling
+- Sanitize user input
+- Validate on both client and server
+- Use proper encoding
+
+### Data Display
+- Escape HTML content
+- Use React's built-in XSS protection
+- Validate URLs before rendering
+
+### Authentication
+- Store tokens securely
+- Implement proper logout
+- Handle expired sessions
+
+## Responsive Design Testing
+
+### Test on Real Devices
+- iPad (768x1024)
+- iPad Pro (1024x1366)
+- Desktop (1920x1080)
+
+### Browser Dev Tools
+1. Open DevTools (F12)
+2. Toggle device toolbar (Ctrl+Shift+M)
+3. Test these sizes:
+   - 768px (Tablet portrait)
+   - 1024px (Tablet landscape)
+   - 1280px (Desktop)
+   - 1920px (Large desktop)
+
+### Responsive Checklist
+- [ ] Text is readable at all sizes
+- [ ] Touch targets ≥ 44px on tablets
+- [ ] No horizontal scroll
+- [ ] Images scale properly
+- [ ] Navigation accessible
+- [ ] Forms usable
+- [ ] Tables readable or reformatted
+- [ ] Modals fit viewport
+
+## Key Implementation Rules
+
+1. **Always use Tailwind's responsive prefixes**
+   - Don't use fixed widths without responsive alternatives
+   
+2. **Test every component at multiple breakpoints**
+   - 768px, 1024px, 1280px minimum
+
+3. **Use flex and grid for layouts**
+   - Avoid absolute positioning except for overlays
+
+4. **Maintain consistent spacing**
+   - Use Tailwind's spacing scale (4, 6, 8, 12, 16...)
+
+5. **Provide visual feedback**
+   - Hover states, focus states, active states
+
+6. **Handle empty states**
+   - Show helpful messages when no data
+
+7. **Implement loading states**
+   - Show skeleton screens or spinners
+
+8. **Keep accessibility in mind**
+   - Keyboard navigation, screen readers
+
+## Notes
+
+- This is a B2B application for power users
+- Priority: Desktop (1024+) and Tablet (768-1023px)
+- Focus on efficiency and speed
+- Professional, banking-appropriate design
+- Minimal, clean interface
+
+## Quick Reference
+
+### Common Responsive Patterns
+```jsx
+// Container
+<div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+
+// Grid
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+
+// Flex
+<div className="flex flex-col md:flex-row gap-4 md:gap-6">
+
+// Text
+<h1 className="text-2xl md:text-3xl lg:text-4xl font-bold">
+
+// Padding
+<div className="p-4 md:p-6 lg:p-8">
+
+// Hidden/Visible
+<div className="hidden md:block">        // Show on tablet+
+<div className="block md:hidden">        // Show on mobile only
+<div className="md:hidden lg:block">     // Hide only on tablet
+```
+
