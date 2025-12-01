@@ -5,7 +5,6 @@ import { debounce } from '../../lib/utils';
 import SearchLineIcon from 'remixicon-react/SearchLineIcon';
 import ArrowDownSLineIcon from 'remixicon-react/ArrowDownSLineIcon';
 import CloseLineIcon from 'remixicon-react/CloseLineIcon';
-import CheckLineIcon from 'remixicon-react/CheckLineIcon';
 
 /**
  * FilterPanel - Site and Metric multi-select filters with type-ahead search
@@ -258,23 +257,20 @@ const FilterPanel = ({ onFilterChange }) => {
                         borderBottom: '1px solid rgba(245, 245, 245, 1)'
                       }}
                     >
-                      <div 
+                      <input
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => toggleSite(site)}
+                        onClick={(e) => e.stopPropagation()}
                         style={{
                           width: '18px',
                           height: '18px',
-                          borderRadius: '4px',
-                          border: '2px solid ' + (isSelected ? '#073370' : 'rgba(229, 229, 229, 1)'),
-                          backgroundColor: isSelected ? '#073370' : 'transparent',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
+                          cursor: 'pointer',
+                          accentColor: '#073370',
+                          borderRadius: '8px',
                           flexShrink: 0
                         }}
-                      >
-                        {isSelected && (
-                          <CheckLineIcon style={{ width: '12px', height: '12px', color: 'white' }} />
-                        )}
-                      </div>
+                      />
                       <div className="flex-1">
                         <div 
                           style={{
@@ -455,23 +451,20 @@ const FilterPanel = ({ onFilterChange }) => {
                             borderBottom: '1px solid rgba(245, 245, 245, 1)'
                           }}
                         >
-                          <div 
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleMetric(metric)}
+                            onClick={(e) => e.stopPropagation()}
                             style={{
                               width: '18px',
                               height: '18px',
-                              borderRadius: '4px',
-                              border: '2px solid ' + (isSelected ? '#073370' : 'rgba(229, 229, 229, 1)'),
-                              backgroundColor: isSelected ? '#073370' : 'transparent',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
+                              cursor: 'pointer',
+                              accentColor: '#073370',
+                              borderRadius: '8px',
                               flexShrink: 0
                             }}
-                          >
-                            {isSelected && (
-                              <CheckLineIcon style={{ width: '12px', height: '12px', color: 'white' }} />
-                            )}
-                          </div>
+                          />
                           <div 
                             style={{
                               fontSize: '14px',
@@ -513,7 +506,6 @@ const FilterPanel = ({ onFilterChange }) => {
           style={{
             padding: '12px 16px',
             backgroundColor: 'rgba(7, 51, 112, 0.05)',
-            border: '1px solid rgba(7, 51, 112, 0.2)',
             borderRadius: '8px'
           }}
         >

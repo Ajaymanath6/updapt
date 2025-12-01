@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { esgMockData } from '../../lib/esgMockData';
 import { debounce } from '../../lib/utils';
@@ -18,6 +18,30 @@ const AssignmentFilters = ({ onFilterChange }) => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [isSiteDropdownOpen, setIsSiteDropdownOpen] = useState(false);
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+
+  // Refs for click outside detection
+  const siteDropdownRef = useRef(null);
+  const categoryDropdownRef = useRef(null);
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (siteDropdownRef.current && !siteDropdownRef.current.contains(event.target)) {
+        setIsSiteDropdownOpen(false);
+      }
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+
+    if (isSiteDropdownOpen || isCategoryDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSiteDropdownOpen, isCategoryDropdownOpen]);
 
   // Get unique categories
   const categories = useMemo(() => esgMockData.metricCategories, []);
@@ -166,7 +190,7 @@ const AssignmentFilters = ({ onFilterChange }) => {
         </div>
 
         {/* Site Filter */}
-        <div className="relative">
+        <div className="relative" ref={siteDropdownRef}>
           <label 
             style={{
               fontSize: '14px',
@@ -282,7 +306,7 @@ const AssignmentFilters = ({ onFilterChange }) => {
         </div>
 
         {/* Metric Category Filter */}
-        <div className="relative">
+        <div className="relative" ref={categoryDropdownRef}>
           <label 
             style={{
               fontSize: '14px',

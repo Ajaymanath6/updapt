@@ -1,31 +1,60 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { getUserById, getSiteById, getMetricById, removeAssignment, esgMockData, updateAssignment } from '../../lib/esgMockData';
+import { getUserById, getSiteById, getMetricById, removeAssignment, esgMockData } from '../../lib/esgMockData';
 import CloseLineIcon from 'remixicon-react/CloseLineIcon';
 import AlertLineIcon from 'remixicon-react/AlertLineIcon';
+import ArrowDownSLineIcon from 'remixicon-react/ArrowDownSLineIcon';
 import Button from '../common/Button';
 import { useToast } from '../common/Toast';
 
 /**
  * EditAssignmentModal - Modal for editing or removing a single assignment
- * Smaller focused modal with confirmation for remove action
+ * Supports two modes: 'edit' and 'delete'
  */
-const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }) => {
+const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange, mode = 'delete' }) => {
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // Always start in read-only mode
   const [selectedSiteId, setSelectedSiteId] = useState('');
   const [selectedMetricId, setSelectedMetricId] = useState('');
+  const [isSiteDropdownOpen, setIsSiteDropdownOpen] = useState(false);
+  const [isMetricDropdownOpen, setIsMetricDropdownOpen] = useState(false);
   const { showSuccess, showError } = useToast();
+
+  // Refs for click outside detection
+  const siteDropdownRef = useRef(null);
+  const metricDropdownRef = useRef(null);
+
+  // Handle click outside to close dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (siteDropdownRef.current && !siteDropdownRef.current.contains(event.target)) {
+        setIsSiteDropdownOpen(false);
+      }
+      if (metricDropdownRef.current && !metricDropdownRef.current.contains(event.target)) {
+        setIsMetricDropdownOpen(false);
+      }
+    };
+
+    if (isSiteDropdownOpen || isMetricDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isSiteDropdownOpen, isMetricDropdownOpen]);
 
   // Initialize edit form when assignment changes
   useEffect(() => {
     if (assignment) {
       setSelectedSiteId(assignment.siteId);
       setSelectedMetricId(assignment.metricId);
-      setIsEditing(false);
+      setIsEditing(false); // Always start in read-only mode
       setShowConfirmation(false);
+      setIsSiteDropdownOpen(false);
+      setIsMetricDropdownOpen(false);
     }
-  }, [assignment]);
+  }, [assignment, mode]);
 
   if (!isOpen || !assignment) return null;
 
@@ -161,7 +190,7 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                     color: 'rgba(26, 26, 26, 1)'
                   }}
                 >
-                  Assignment Details
+                  {mode === 'edit' ? 'Edit Assignment' : 'Assignment Details'}
                 </h2>
                 <button
                   onClick={handleClose}
@@ -253,29 +282,65 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                       Site
                     </label>
                     {isEditing ? (
-                      <select
-                        value={selectedSiteId}
-                        onChange={(e) => setSelectedSiteId(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          backgroundColor: 'rgba(255, 255, 255, 1)',
-                          border: '1px solid rgba(229, 229, 229, 1)',
-                          borderRadius: '6px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          lineHeight: '20px',
-                          letterSpacing: '-0.03em',
-                          color: 'rgba(26, 26, 26, 1)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {esgMockData.sites.map(s => (
-                          <option key={s.id} value={s.id}>
-                            {s.name} - {s.group}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative" ref={siteDropdownRef}>
+                        <button
+                          onClick={() => setIsSiteDropdownOpen(!isSiteDropdownOpen)}
+                          className="w-full flex items-center justify-between"
+                          style={{
+                            borderRadius: '4px',
+                            height: '40px',
+                            padding: '8px 12px',
+                            backgroundColor: 'rgba(255, 255, 255, 1)',
+                            border: '1px solid rgba(229, 229, 229, 1)',
+                            boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                            letterSpacing: '-0.03em',
+                            color: 'rgba(26, 26, 26, 1)',
+                            cursor: 'pointer',
+                            textAlign: 'left'
+                          }}
+                        >
+                          <span>{getSiteById(selectedSiteId)?.name || 'Select Site...'}</span>
+                          <ArrowDownSLineIcon style={{ width: '20px', height: '20px', color: 'rgba(87, 87, 87, 1)' }} />
+                        </button>
+                        {isSiteDropdownOpen && (
+                          <div
+                            className="absolute z-10 w-full mt-2"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 1)',
+                              border: '1px solid rgba(229, 229, 229, 1)',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.1)',
+                              maxHeight: '300px',
+                              overflowY: 'auto'
+                            }}
+                          >
+                            {esgMockData.sites.map(s => (
+                              <div
+                                key={s.id}
+                                onClick={() => {
+                                  setSelectedSiteId(s.id);
+                                  setIsSiteDropdownOpen(false);
+                                }}
+                                className="cursor-pointer hover:bg-gray-50"
+                                style={{
+                                  padding: '10px 12px',
+                                  borderBottom: '1px solid rgba(245, 245, 245, 1)',
+                                  backgroundColor: selectedSiteId === s.id ? 'rgba(7, 51, 112, 0.05)' : 'transparent'
+                                }}
+                              >
+                                <div style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(26, 26, 26, 1)' }}>
+                                  {s.name}
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'rgba(87, 87, 87, 1)' }}>
+                                  {s.group}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <div 
                         className="rounded-lg"
@@ -327,29 +392,65 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                       Metric
                     </label>
                     {isEditing ? (
-                      <select
-                        value={selectedMetricId}
-                        onChange={(e) => setSelectedMetricId(e.target.value)}
-                        style={{
-                          width: '100%',
-                          padding: '12px',
-                          backgroundColor: 'rgba(255, 255, 255, 1)',
-                          border: '1px solid rgba(229, 229, 229, 1)',
-                          borderRadius: '6px',
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          lineHeight: '20px',
-                          letterSpacing: '-0.03em',
-                          color: 'rgba(26, 26, 26, 1)',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {esgMockData.metrics.map(m => (
-                          <option key={m.id} value={m.id}>
-                            {m.name} ({m.category})
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative" ref={metricDropdownRef}>
+                        <button
+                          onClick={() => setIsMetricDropdownOpen(!isMetricDropdownOpen)}
+                          className="w-full flex items-center justify-between"
+                          style={{
+                            borderRadius: '4px',
+                            height: '40px',
+                            padding: '8px 12px',
+                            backgroundColor: 'rgba(255, 255, 255, 1)',
+                            border: '1px solid rgba(229, 229, 229, 1)',
+                            boxShadow: '0px 1px 2px 0px rgba(0, 0, 0, 0.05)',
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                            letterSpacing: '-0.03em',
+                            color: 'rgba(26, 26, 26, 1)',
+                            cursor: 'pointer',
+                            textAlign: 'left'
+                          }}
+                        >
+                          <span>{getMetricById(selectedMetricId)?.name || 'Select Metric...'}</span>
+                          <ArrowDownSLineIcon style={{ width: '20px', height: '20px', color: 'rgba(87, 87, 87, 1)' }} />
+                        </button>
+                        {isMetricDropdownOpen && (
+                          <div
+                            className="absolute z-10 w-full mt-2"
+                            style={{
+                              backgroundColor: 'rgba(255, 255, 255, 1)',
+                              border: '1px solid rgba(229, 229, 229, 1)',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.1)',
+                              maxHeight: '300px',
+                              overflowY: 'auto'
+                            }}
+                          >
+                            {esgMockData.metrics.map(m => (
+                              <div
+                                key={m.id}
+                                onClick={() => {
+                                  setSelectedMetricId(m.id);
+                                  setIsMetricDropdownOpen(false);
+                                }}
+                                className="cursor-pointer hover:bg-gray-50"
+                                style={{
+                                  padding: '10px 12px',
+                                  borderBottom: '1px solid rgba(245, 245, 245, 1)',
+                                  backgroundColor: selectedMetricId === m.id ? 'rgba(7, 51, 112, 0.05)' : 'transparent'
+                                }}
+                              >
+                                <div style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(26, 26, 26, 1)' }}>
+                                  {m.name}
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'rgba(87, 87, 87, 1)' }}>
+                                  {m.category}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <div 
                         className="rounded-lg"
@@ -392,47 +493,48 @@ const EditAssignmentModal = ({ isOpen, onClose, assignment, onAssignmentChange }
                   padding: '16px 24px',
                   borderTop: '1px solid rgba(229, 229, 229, 1)',
                   display: 'flex',
-                  justifyContent: 'space-between',
+                  justifyContent: 'flex-end',
                   gap: '12px'
                 }}
               >
-                <div>
-                  <Button 
-                    variant="danger" 
-                    onClick={() => setShowConfirmation(true)}
-                  >
-                    Remove Assignment
-                  </Button>
-                </div>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  {isEditing ? (
-                    <>
-                      <Button variant="secondary" onClick={() => {
-                        setSelectedSiteId(assignment.siteId);
-                        setSelectedMetricId(assignment.metricId);
-                        setIsEditing(false);
-                      }}>
-                        Cancel
-                      </Button>
-                      <Button 
-                        variant="primary" 
-                        onClick={handleSaveEdit}
-                        disabled={!hasChanges}
-                      >
-                        Save Changes
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button variant="secondary" onClick={handleClose}>
-                        Close
-                      </Button>
+                {isEditing ? (
+                  <>
+                    <Button variant="secondary" onClick={() => {
+                      setSelectedSiteId(assignment.siteId);
+                      setSelectedMetricId(assignment.metricId);
+                      setIsEditing(false);
+                      setIsSiteDropdownOpen(false);
+                      setIsMetricDropdownOpen(false);
+                    }}>
+                      Cancel
+                    </Button>
+                    <Button 
+                      variant="primary" 
+                      onClick={handleSaveEdit}
+                      disabled={!hasChanges}
+                    >
+                      Save Changes
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="secondary" onClick={handleClose}>
+                      Close
+                    </Button>
+                    {mode === 'edit' ? (
                       <Button variant="primary" onClick={() => setIsEditing(true)}>
                         Edit Assignment
                       </Button>
-                    </>
-                  )}
-                </div>
+                    ) : (
+                      <Button 
+                        variant="danger" 
+                        onClick={() => setShowConfirmation(true)}
+                      >
+                        Remove Assignment
+                      </Button>
+                    )}
+                  </>
+                )}
               </div>
             </>
           ) : (
@@ -540,6 +642,7 @@ EditAssignmentModal.propTypes = {
   onClose: PropTypes.func.isRequired,
   assignment: PropTypes.object,
   onAssignmentChange: PropTypes.func,
+  mode: PropTypes.oneOf(['edit', 'delete']),
 };
 
 export default EditAssignmentModal;

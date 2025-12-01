@@ -54,10 +54,8 @@ const MatrixCell = ({ siteId, metricId, userCount, onClick }) => {
         border: isEmpty 
           ? (isHovered ? '1px solid #073370' : '1px dashed rgba(229, 229, 229, 1)')
           : (isHovered ? '1px solid #073370' : '1px solid rgba(229, 229, 229, 1)'),
-        backgroundColor: isEmpty 
-          ? (isHovered ? 'rgba(7, 51, 112, 0.02)' : 'transparent')
-          : (isHovered ? 'rgba(7, 51, 112, 0.08)' : 'rgba(7, 51, 112, 0.05)'),
-        boxShadow: isHovered ? '0px 2px 8px 0px rgba(0, 0, 0, 0.08)' : 'none',
+        backgroundColor: 'transparent',
+        boxShadow: 'none',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -80,19 +78,24 @@ const MatrixCell = ({ siteId, metricId, userCount, onClick }) => {
         </>
       ) : (
         <>
-          {/* Show user avatars */}
+          {/* Show user avatars - stacked/overlapping */}
           <div 
             style={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '4px',
-              flexWrap: 'wrap',
               padding: '4px'
             }}
           >
-            {visibleUsers.map(user => (
-              <UserAvatar key={user.id} user={user} size="small" />
+            {visibleUsers.map((user, index) => (
+              <div
+                key={user.id}
+                style={{
+                  marginLeft: index > 0 ? '-8px' : '0'
+                }}
+              >
+                <UserAvatar user={user} size="small" />
+              </div>
             ))}
             
             {/* Show +N indicator if there are more users */}
@@ -102,16 +105,15 @@ const MatrixCell = ({ siteId, metricId, userCount, onClick }) => {
                   width: '28px',
                   height: '28px',
                   borderRadius: '50%',
-                  backgroundColor: 'rgba(7, 51, 112, 0.1)',
-                  color: '#073370',
+                  backgroundColor: 'rgba(249, 249, 249, 1)',
+                  color: 'rgba(87, 87, 87, 1)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '11px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   flexShrink: 0,
-                  border: '2px solid white',
-                  boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.12)',
+                  marginLeft: visibleUsers.length > 0 ? '-8px' : '0',
                 }}
               >
                 +{remainingCount}

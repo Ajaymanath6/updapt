@@ -207,97 +207,79 @@ const AssignmentMatrix = ({ selectedSites, selectedMetrics, onCellClick }) => {
             style={{
               marginBottom: '16px',
               padding: '12px 16px',
-              backgroundColor: '#073370',
+              backgroundColor: 'rgba(249, 249, 249, 1)',
               borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              gap: '16px'
+              gap: '16px',
+              boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'white' }}>
-                {selectedCombinationsCount} combination{selectedCombinationsCount !== 1 ? 's' : ''} selected
-              </span>
-              <span style={{ fontSize: '12px', color: 'rgba(255, 255, 255, 0.8)' }}>
-                ({selectedSiteIds.size} site{selectedSiteIds.size !== 1 ? 's' : ''} × {selectedMetricIds.size} metric{selectedMetricIds.size !== 1 ? 's' : ''})
+              <span style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(26, 26, 26, 1)' }}>
+                You have {selectedCombinationsCount} combination{selectedCombinationsCount !== 1 ? 's' : ''} selected
               </span>
             </div>
-            <div style={{ display: 'flex', gap: '8px' }}>
+            <div style={{ display: 'flex', gap: '10px' }}>
               <button
                 onClick={handleAssignUser}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
                   padding: '8px 16px',
-                  backgroundColor: 'white',
-                  color: '#073370',
+                  backgroundColor: '#073370',
+                  color: 'white',
                   border: 'none',
-                  borderRadius: '6px',
+                  borderRadius: '8px',
                   fontSize: '14px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#f0f0f0'}
-                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'white'}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.9)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#073370'}
               >
-                <span style={{ fontSize: '16px' }}>+</span>
-                Assign User
+                + Assign User
               </button>
               <button
                 onClick={handleRemoveUser}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
                   padding: '8px 16px',
-                  backgroundColor: 'transparent',
+                  backgroundColor: '#073370',
                   color: 'white',
-                  border: '1px solid white',
-                  borderRadius: '6px',
+                  border: 'none',
+                  borderRadius: '8px',
                   fontSize: '14px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.9)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#073370'}
               >
-                <span style={{ fontSize: '16px' }}>−</span>
-                Remove User
+                − Remove User
               </button>
               <button
                 onClick={handleCancelSelection}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
                   padding: '8px 16px',
-                  backgroundColor: 'transparent',
-                  color: 'white',
-                  border: '1px solid rgba(255, 255, 255, 0.5)',
-                  borderRadius: '6px',
+                  backgroundColor: 'white',
+                  color: 'rgba(26, 26, 26, 1)',
+                  border: '1px solid rgba(229, 229, 229, 1)',
+                  borderRadius: '8px',
                   fontSize: '14px',
-                  fontWeight: 600,
+                  fontWeight: 500,
                   cursor: 'pointer',
                   transition: 'all 0.2s'
                 }}
                 onMouseOver={(e) => {
-                  e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.borderColor = 'white';
+                  e.currentTarget.style.backgroundColor = 'rgba(249, 249, 249, 1)';
+                  e.currentTarget.style.borderColor = 'rgba(7, 51, 112, 0.3)';
                 }}
                 onMouseOut={(e) => {
-                  e.currentTarget.style.backgroundColor = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.5)';
+                  e.currentTarget.style.backgroundColor = 'white';
+                  e.currentTarget.style.borderColor = 'rgba(229, 229, 229, 1)';
                 }}
               >
-                <span style={{ fontSize: '16px' }}>×</span>
                 Cancel
               </button>
             </div>
@@ -314,10 +296,15 @@ const AssignmentMatrix = ({ selectedSites, selectedMetrics, onCellClick }) => {
                 height: '60px',
                 display: 'flex',
                 alignItems: 'center',
-                paddingLeft: '12px',
-                backgroundColor: '#f9f9f9',
-                borderRadius: '6px',
-                gap: '8px'
+                padding: '12px',
+                backgroundColor: '#ffffff',
+                border: allSelected ? '1.5px solid #073370' : '1px solid rgba(229, 229, 229, 1)',
+                borderRadius: '8px',
+                gap: '10px',
+                transition: 'all 0.2s',
+                boxShadow: allSelected 
+                  ? '0px 2px 8px rgba(7, 51, 112, 0.15)' 
+                  : '0px 1px 3px rgba(0, 0, 0, 0.08)'
               }}
             >
               <input
@@ -328,7 +315,8 @@ const AssignmentMatrix = ({ selectedSites, selectedMetrics, onCellClick }) => {
                   width: '16px',
                   height: '16px',
                   cursor: 'pointer',
-                  accentColor: '#073370'
+                  accentColor: '#073370',
+                  borderRadius: '8px'
                 }}
                 title="Select all sites and metrics"
               />
@@ -337,126 +325,231 @@ const AssignmentMatrix = ({ selectedSites, selectedMetrics, onCellClick }) => {
               </span>
             </div>
             
-            {/* Site columns with checkboxes */}
-            {selectedSites.map(site => (
-              <div 
-                key={site.id}
-                style={{
-                  minWidth: '140px',
-                  height: '60px',
-                  padding: '8px 12px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: '#f9f9f9',
-                  borderRadius: '6px',
-                  gap: '4px'
-                }}
-              >
-                <input
-                  type="checkbox"
-                  checked={selectedSiteIds.has(site.id)}
-                  onChange={() => handleSiteCheckboxChange(site.id)}
+            {/* Site columns as clickable cards */}
+            {selectedSites.map(site => {
+              const isSelected = selectedSiteIds.has(site.id);
+              return (
+                <div 
+                  key={site.id}
+                  onClick={() => handleSiteCheckboxChange(site.id)}
                   style={{
-                    width: '16px',
-                    height: '16px',
+                    minWidth: '140px',
+                    height: '60px',
+                    padding: '12px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-start',
+                    backgroundColor: '#ffffff',
+                    border: isSelected ? '1.5px solid #073370' : '1px solid rgba(229, 229, 229, 1)',
+                    borderRadius: '8px',
+                    gap: '10px',
+                    transition: 'all 0.2s',
                     cursor: 'pointer',
-                    accentColor: '#073370'
+                    boxShadow: isSelected 
+                      ? '0px 2px 8px rgba(7, 51, 112, 0.15)' 
+                      : '0px 1px 3px rgba(0, 0, 0, 0.08)'
                   }}
-                  title={`Select ${site.name}`}
-                />
-                <div style={{ fontSize: '13px', fontWeight: 600, textAlign: 'center' }}>
-                  {site.name}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(7, 51, 112, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.borderColor = 'rgba(229, 229, 229, 1)';
+                    }
+                  }}
+                  title={`Click to ${isSelected ? 'deselect' : 'select'} ${site.name}`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => handleSiteCheckboxChange(site.id)}
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      width: '16px',
+                      height: '16px',
+                      cursor: 'pointer',
+                      accentColor: '#073370',
+                      borderRadius: '8px',
+                      flexShrink: 0,
+                      marginTop: '2px'
+                    }}
+                    title={`Select ${site.name}`}
+                  />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', flex: 1, minWidth: 0 }}>
+                    <div style={{ 
+                      fontSize: '13px', 
+                      fontWeight: 600, 
+                      color: isSelected ? '#073370' : 'rgba(26, 26, 26, 1)', 
+                      lineHeight: '18px' 
+                    }}>
+                      {site.name}
+                    </div>
+                    <div style={{ 
+                      fontSize: '11px', 
+                      color: isSelected ? 'rgba(7, 51, 112, 0.7)' : 'rgba(87, 87, 87, 0.7)', 
+                      lineHeight: '14px' 
+                    }}>
+                      {site.group}
+                    </div>
+                  </div>
                 </div>
-                <div style={{ fontSize: '10px', color: '#575757' }}>
-                  {site.group}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Data Rows - Grouped by Category */}
           {Object.entries(groupedMetrics).map(([category, metrics]) => (
-            <div key={category} style={{ marginBottom: '16px' }}>
-              {/* Category Header */}
+            <div key={category} style={{ marginBottom: '20px' }}>
+              {/* Category Header - extends across full width */}
               <div 
                 style={{
-                  padding: '8px 12px',
-                  backgroundColor: 'rgba(7, 51, 112, 0.05)',
-                  borderRadius: '6px',
-                  marginBottom: '8px'
+                  display: 'flex',
+                  marginBottom: '12px',
+                  gap: '8px',
+                  alignItems: 'stretch'
                 }}
               >
-                <span style={{ fontSize: '12px', fontWeight: 700, color: '#073370', textTransform: 'uppercase' }}>
-                  {category}
-                </span>
+                <div 
+                  style={{
+                    minWidth: '240px',
+                    padding: '10px 16px',
+                    backgroundColor: '#f9f9f9',
+                    borderRadius: '6px',
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}
+                >
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#073370', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {category}
+                  </span>
+                </div>
+                {/* Extend background across site columns */}
+                {selectedSites.length > 0 && (
+                  <div 
+                    style={{
+                      flex: 1,
+                      padding: '10px 16px',
+                      backgroundColor: '#f9f9f9',
+                      borderRadius: '6px',
+                      display: 'flex',
+                      alignItems: 'center'
+                    }}
+                  />
+                )}
               </div>
 
               {/* Metric Rows */}
-              {metrics.map(metric => (
-                <div 
-                  key={metric.id} 
-                  style={{ display: 'flex', marginBottom: '8px', gap: '8px', alignItems: 'center' }}
-                >
-                  {/* Metric label with checkbox */}
+              {metrics.map(metric => {
+                const isMetricSelected = selectedMetricIds.has(metric.id);
+                return (
                   <div 
-                    style={{
-                      minWidth: '240px',
-                      height: '60px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      backgroundColor: '#f9f9f9',
-                      borderRadius: '6px',
-                      gap: '8px'
+                    key={metric.id} 
+                    style={{ 
+                      display: 'flex', 
+                      marginBottom: '8px', 
+                      gap: '8px', 
+                      alignItems: 'center'
                     }}
                   >
-                    <input
-                      type="checkbox"
-                      checked={selectedMetricIds.has(metric.id)}
-                      onChange={() => handleMetricCheckboxChange(metric.id)}
-                      style={{
-                        width: '16px',
-                        height: '16px',
-                        cursor: 'pointer',
-                        accentColor: '#073370',
-                        flexShrink: 0
-                      }}
-                      title={`Select ${metric.name}`}
-                    />
+                    {/* Metric label as clickable card */}
                     <div 
+                      onClick={() => handleMetricCheckboxChange(metric.id)}
                       style={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        flex: 1
+                        minWidth: '240px',
+                        height: '60px',
+                        padding: '12px',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        backgroundColor: '#ffffff',
+                        border: isMetricSelected ? '1.5px solid #073370' : '1px solid rgba(229, 229, 229, 1)',
+                        borderRadius: '8px',
+                        gap: '10px',
+                        transition: 'all 0.2s',
+                        cursor: 'pointer',
+                        boxShadow: isMetricSelected 
+                          ? '0px 2px 8px rgba(7, 51, 112, 0.15)' 
+                          : '0px 1px 3px rgba(0, 0, 0, 0.08)'
                       }}
-                      title={metric.name}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(7, 51, 112, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isMetricSelected) {
+                          e.currentTarget.style.borderColor = 'rgba(229, 229, 229, 1)';
+                        }
+                      }}
+                      title={`Click to ${isMetricSelected ? 'deselect' : 'select'} ${metric.name}`}
                     >
-                      {metric.name}
-                    </div>
-                  </div>
-
-                  {/* Cells for each site */}
-                  {selectedSites.map(site => {
-                    const userCount = getUserCountForSiteMetric(site.id, metric.id);
-                    return (
-                      <MatrixCell
-                        key={`${site.id}-${metric.id}`}
-                        siteId={site.id}
-                        metricId={metric.id}
-                        userCount={userCount}
-                        onClick={onCellClick}
+                      <input
+                        type="checkbox"
+                        checked={isMetricSelected}
+                        onChange={() => handleMetricCheckboxChange(metric.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          cursor: 'pointer',
+                          accentColor: '#073370',
+                          borderRadius: '8px',
+                          flexShrink: 0,
+                          marginTop: '2px'
+                        }}
+                        title={`Select ${metric.name}`}
                       />
-                    );
-                  })}
-                </div>
-              ))}
+                      <div 
+                        style={{
+                          flex: 1,
+                          minWidth: 0
+                        }}
+                      >
+                        <div 
+                          style={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            color: isMetricSelected ? '#073370' : 'rgba(26, 26, 26, 1)',
+                            lineHeight: '20px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical'
+                          }}
+                          title={metric.name}
+                        >
+                          {metric.name.split('(')[0].trim()}
+                        </div>
+                        {metric.name.includes('(') && (
+                          <div 
+                            style={{
+                              fontSize: '11px',
+                              color: isMetricSelected ? 'rgba(7, 51, 112, 0.7)' : 'rgba(87, 87, 87, 0.7)',
+                              lineHeight: '14px',
+                              marginTop: '2px'
+                            }}
+                          >
+                            {metric.name.match(/\([^)]+\)/)?.[0]}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Cells for each site */}
+                    {selectedSites.map(site => {
+                      const userCount = getUserCountForSiteMetric(site.id, metric.id);
+                      return (
+                        <MatrixCell
+                          key={`${site.id}-${metric.id}`}
+                          siteId={site.id}
+                          metricId={metric.id}
+                          userCount={userCount}
+                          onClick={onCellClick}
+                        />
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>

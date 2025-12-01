@@ -32,6 +32,7 @@ const ESGConfigurationPage = () => {
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);
+  const [editModalMode, setEditModalMode] = useState('delete');
   const [reviewRefreshKey, setReviewRefreshKey] = useState(0);
 
   // Handle filter changes from FilterPanel (Assignment tab)
@@ -69,12 +70,14 @@ const ESGConfigurationPage = () => {
   // Handle edit assignment
   const handleEditAssignment = (assignment) => {
     setSelectedAssignment(assignment);
+    setEditModalMode('edit');
     setIsEditModalOpen(true);
   };
 
   // Handle remove assignment
   const handleRemoveAssignment = (assignment) => {
     setSelectedAssignment(assignment);
+    setEditModalMode('delete');
     setIsEditModalOpen(true);
   };
 
@@ -298,6 +301,7 @@ const ESGConfigurationPage = () => {
         onClose={handleEditModalClose}
         assignment={selectedAssignment}
         onAssignmentChange={handleReviewAssignmentChange}
+        mode={editModalMode}
       />
     </div>
   );
