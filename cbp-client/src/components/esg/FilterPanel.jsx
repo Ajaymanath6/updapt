@@ -708,7 +708,7 @@ const FilterPanel = ({ onFilterChange }) => {
               color: '#073370'
             }}
           >
-            Selection Summary: {selectedSites.length} Site{selectedSites.length !== 1 ? 's' : ''} × {selectedMetrics.length} Metric{selectedMetrics.length !== 1 ? 's' : ''} = {selectedSites.length * selectedMetrics.length} Combinations
+            Selection Summary: {selectedSites.length} Site{selectedSites.length !== 1 ? 's' : ''} × {selectedMetrics.length} Metric{selectedMetrics.length !== 1 ? 's' : ''} = {selectedSites.length * selectedMetrics.length} Assignment{(selectedSites.length * selectedMetrics.length) !== 1 ? 's' : ''}
           </div>
         </div>
       )}

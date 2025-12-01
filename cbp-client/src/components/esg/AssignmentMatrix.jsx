@@ -218,7 +218,7 @@ const AssignmentMatrix = ({ selectedSites, selectedMetrics, onCellClick }) => {
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <span style={{ fontSize: '14px', fontWeight: 500, color: 'rgba(26, 26, 26, 1)' }}>
-                You have {selectedCombinationsCount} combination{selectedCombinationsCount !== 1 ? 's' : ''} selected
+                You have {selectedCombinationsCount} assignment{selectedCombinationsCount !== 1 ? 's' : ''} selected
               </span>
             </div>
             <div style={{ display: 'flex', gap: '10px' }}>

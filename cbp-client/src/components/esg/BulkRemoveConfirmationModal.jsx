@@ -219,3 +219,4 @@ BulkRemoveConfirmationModal.propTypes = {
 
 export default BulkRemoveConfirmationModal;
 
+
