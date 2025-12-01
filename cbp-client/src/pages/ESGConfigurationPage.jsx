@@ -28,7 +28,7 @@ const ESGConfigurationPage = () => {
   const [reviewFilters, setReviewFilters] = useState({
     userSearch: '',
     sites: [],
-    categories: []
+    metrics: []
   });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedAssignment, setSelectedAssignment] = useState(null);

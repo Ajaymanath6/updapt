@@ -36,12 +36,10 @@ const AssignmentTable = ({ filters, onEdit, onRemove, refreshKey }) => {
       filtered = filtered.filter(assignment => siteIds.includes(assignment.siteId));
     }
 
-    // Filter by metric categories
-    if (filters.categories && filters.categories.length > 0) {
-      filtered = filtered.filter(assignment => {
-        const metric = getMetricById(assignment.metricId);
-        return metric && filters.categories.includes(metric.category);
-      });
+    // Filter by metrics
+    if (filters.metrics && filters.metrics.length > 0) {
+      const metricIds = filters.metrics.map(m => m.id);
+      filtered = filtered.filter(assignment => metricIds.includes(assignment.metricId));
     }
 
     return filtered;
@@ -438,7 +436,7 @@ AssignmentTable.propTypes = {
   filters: PropTypes.shape({
     userSearch: PropTypes.string,
     sites: PropTypes.array,
-    categories: PropTypes.array,
+    metrics: PropTypes.array,
   }).isRequired,
   onEdit: PropTypes.func,
   onRemove: PropTypes.func,
