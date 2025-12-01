@@ -10,21 +10,19 @@ import { getAssignmentsForSiteMetric, getUserById } from '../../lib/esgMockData'
  */
 const MatrixCell = ({ siteId, metricId, userCount, onClick }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const isEmpty = userCount === 0;
 
-  // Get assigned users for this cell
-  const assignedUsers = useMemo(() => {
-    if (isEmpty) return [];
-    const assignments = getAssignmentsForSiteMetric(siteId, metricId);
-    return assignments
-      .map(assignment => getUserById(assignment.userId))
-      .filter(Boolean); // Remove any null/undefined users
-  }, [siteId, metricId, isEmpty]);
+  // Get assigned users for this cell - always get fresh data on every render
+  const assignments = getAssignmentsForSiteMetric(siteId, metricId);
+  const assignedUsers = assignments
+    .map(assignment => getUserById(assignment.userId))
+    .filter(Boolean); // Remove any null/undefined users
+
+  const isEmpty = assignedUsers.length === 0;
 
   // Max avatars to show before "+N"
   const MAX_VISIBLE_AVATARS = 3;
   const visibleUsers = assignedUsers.slice(0, MAX_VISIBLE_AVATARS);
-  const remainingCount = assignedUsers.length - MAX_VISIBLE_AVATARS;
+  const remainingCount = Math.max(0, assignedUsers.length - MAX_VISIBLE_AVATARS);
 
   // Generate tooltip text with all user names
   const tooltipText = useMemo(() => {
