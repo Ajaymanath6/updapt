@@ -546,21 +546,28 @@ const FilterPanel = ({ onFilterChange }) => {
                 </div>
               </div>
 
-              {/* Category chips */}
-              <div style={{ padding: '12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
-                <div 
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    lineHeight: '14px',
-                    letterSpacing: '0.02em',
-                    color: 'rgba(87, 87, 87, 1)',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px'
-                  }}
-                >
-                  Categories
+              {/* Clear button */}
+              {selectedMetrics.length > 0 && (
+                <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
+                  <button
+                    onClick={clearMetrics}
+                    className="flex items-center"
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#073370',
+                      cursor: 'pointer',
+                      gap: '4px'
+                    }}
+                  >
+                    <CloseLineIcon style={{ width: '16px', height: '16px' }} />
+                    Clear all
+                  </button>
                 </div>
+              )}
+
+              {/* Category chips - above metric list */}
+              <div style={{ padding: '12px', borderBottom: '1px solid rgba(229, 229, 229, 1)', backgroundColor: 'rgba(249, 249, 249, 1)' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {metricCategories.map(category => {
                     const isSelected = isCategorySelected(category);
@@ -600,26 +607,6 @@ const FilterPanel = ({ onFilterChange }) => {
                   })}
                 </div>
               </div>
-
-              {/* Clear button */}
-              {selectedMetrics.length > 0 && (
-                <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
-                  <button
-                    onClick={clearMetrics}
-                    className="flex items-center"
-                    style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#073370',
-                      cursor: 'pointer',
-                      gap: '4px'
-                    }}
-                  >
-                    <CloseLineIcon style={{ width: '16px', height: '16px' }} />
-                    Clear all
-                  </button>
-                </div>
-              )}
 
               {/* Metric list grouped by category */}
               <div style={{ overflowY: 'auto', maxHeight: '280px' }}>
