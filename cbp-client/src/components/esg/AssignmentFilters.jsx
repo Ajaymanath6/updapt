@@ -128,18 +128,33 @@ const AssignmentFilters = ({ onFilterChange }) => {
     }
   };
 
-  // Apply site group filter
+  // Apply site group filter (toggle)
   const applySiteGroup = (group) => {
     const matchingSites = esgMockData.sites.filter(group.filter);
-    // Add sites that aren't already selected
-    const newSelection = [...selectedSites];
-    matchingSites.forEach(site => {
-      if (!newSelection.some(s => s.id === site.id)) {
-        newSelection.push(site);
-      }
-    });
+    const allSelected = matchingSites.every(site => selectedSites.some(s => s.id === site.id));
+    
+    let newSelection;
+    if (allSelected) {
+      // Remove all sites in this group
+      newSelection = selectedSites.filter(site => !matchingSites.some(m => m.id === site.id));
+    } else {
+      // Add all sites in this group
+      newSelection = [...selectedSites];
+      matchingSites.forEach(site => {
+        if (!newSelection.some(s => s.id === site.id)) {
+          newSelection.push(site);
+        }
+      });
+    }
+    
     setSelectedSites(newSelection);
     notifyFilterChange({ userSearch: userSearchTerm, sites: newSelection, categories: selectedCategories });
+  };
+
+  // Check if a site group is fully selected
+  const isSiteGroupSelected = (group) => {
+    const matchingSites = esgMockData.sites.filter(group.filter);
+    return matchingSites.length > 0 && matchingSites.every(site => selectedSites.some(s => s.id === site.id));
   };
 
   const hasActiveFilters = userSearchTerm || selectedSites.length > 0 || selectedCategories.length > 0;
@@ -298,35 +313,42 @@ const AssignmentFilters = ({ onFilterChange }) => {
                   Quick Filters
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {siteGroups.map(group => (
-                    <button
-                      key={group.id}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        applySiteGroup(group);
-                      }}
-                      style={{
-                        padding: '4px 10px',
-                        borderRadius: '12px',
-                        backgroundColor: 'rgba(7, 51, 112, 0.08)',
-                        border: '1px solid rgba(7, 51, 112, 0.2)',
-                        fontSize: '12px',
-                        fontWeight: 500,
-                        color: '#073370',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        whiteSpace: 'nowrap'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.15)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.08)';
-                      }}
-                    >
-                      + {group.label}
-                    </button>
-                  ))}
+                  {siteGroups.map(group => {
+                    const isSelected = isSiteGroupSelected(group);
+                    return (
+                      <button
+                        key={group.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          applySiteGroup(group);
+                        }}
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          backgroundColor: isSelected ? '#073370' : 'rgba(7, 51, 112, 0.08)',
+                          border: isSelected ? '1px solid #073370' : '1px solid rgba(7, 51, 112, 0.2)',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          color: isSelected ? '#ffffff' : '#073370',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          whiteSpace: 'nowrap'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.15)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.08)';
+                          }
+                        }}
+                      >
+                        {group.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
