@@ -15,13 +15,14 @@ import FilterLineIcon from 'remixicon-react/FilterLineIcon';
 const AssignmentFilters = ({ onFilterChange }) => {
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [selectedSites, setSelectedSites] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedMetrics, setSelectedMetrics] = useState([]);
+  const [metricSearchTerm, setMetricSearchTerm] = useState('');
   const [isSiteDropdownOpen, setIsSiteDropdownOpen] = useState(false);
-  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isMetricDropdownOpen, setIsMetricDropdownOpen] = useState(false);
 
   // Refs for click outside detection
   const siteDropdownRef = useRef(null);
-  const categoryDropdownRef = useRef(null);
+  const metricDropdownRef = useRef(null);
 
   // Define site groups for quick filtering
   const siteGroups = useMemo(() => [
@@ -53,22 +54,48 @@ const AssignmentFilters = ({ onFilterChange }) => {
       if (siteDropdownRef.current && !siteDropdownRef.current.contains(event.target)) {
         setIsSiteDropdownOpen(false);
       }
-      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target)) {
-        setIsCategoryDropdownOpen(false);
+      if (metricDropdownRef.current && !metricDropdownRef.current.contains(event.target)) {
+        setIsMetricDropdownOpen(false);
       }
     };
 
-    if (isSiteDropdownOpen || isCategoryDropdownOpen) {
+    if (isSiteDropdownOpen || isMetricDropdownOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isSiteDropdownOpen, isCategoryDropdownOpen]);
+  }, [isSiteDropdownOpen, isMetricDropdownOpen]);
 
-  // Get unique categories
-  const categories = useMemo(() => esgMockData.metricCategories, []);
+  // Get metric categories for chips
+  const metricCategories = useMemo(() => {
+    const categories = new Set();
+    esgMockData.metrics.forEach(m => categories.add(m.category));
+    return Array.from(categories).sort();
+  }, []);
+
+  // Filter metrics by search term
+  const filteredMetrics = useMemo(() => {
+    if (!metricSearchTerm) return esgMockData.metrics;
+    const term = metricSearchTerm.toLowerCase();
+    return esgMockData.metrics.filter(metric =>
+      metric.name.toLowerCase().includes(term) ||
+      metric.category.toLowerCase().includes(term)
+    );
+  }, [metricSearchTerm]);
+
+  // Group filtered metrics by category
+  const groupedMetrics = useMemo(() => {
+    const grouped = {};
+    filteredMetrics.forEach(metric => {
+      if (!grouped[metric.category]) {
+        grouped[metric.category] = [];
+      }
+      grouped[metric.category].push(metric);
+    });
+    return grouped;
+  }, [filteredMetrics]);
 
   // Debounced filter notification
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,7 +111,7 @@ const AssignmentFilters = ({ onFilterChange }) => {
   // Handle user search
   const handleUserSearch = (term) => {
     setUserSearchTerm(term);
-    debouncedNotifyFilterChange({ userSearch: term, sites: selectedSites, categories: selectedCategories });
+    debouncedNotifyFilterChange({ userSearch: term, sites: selectedSites, metrics: selectedMetrics });
   };
 
   // Handle site selection
@@ -97,28 +124,63 @@ const AssignmentFilters = ({ onFilterChange }) => {
       newSelection = [...selectedSites, site];
     }
     setSelectedSites(newSelection);
-    notifyFilterChange({ userSearch: userSearchTerm, sites: newSelection, categories: selectedCategories });
+    notifyFilterChange({ userSearch: userSearchTerm, sites: newSelection, metrics: selectedMetrics });
   };
 
-  // Handle category selection
-  const toggleCategory = (category) => {
-    const isSelected = selectedCategories.includes(category);
+  // Handle metric selection
+  const toggleMetric = (metric) => {
+    const isSelected = selectedMetrics.some(m => m.id === metric.id);
     let newSelection;
     if (isSelected) {
-      newSelection = selectedCategories.filter(c => c !== category);
+      newSelection = selectedMetrics.filter(m => m.id !== metric.id);
     } else {
-      newSelection = [...selectedCategories, category];
+      newSelection = [...selectedMetrics, metric];
     }
-    setSelectedCategories(newSelection);
-    notifyFilterChange({ userSearch: userSearchTerm, sites: selectedSites, categories: newSelection });
+    setSelectedMetrics(newSelection);
+    notifyFilterChange({ userSearch: userSearchTerm, sites: selectedSites, metrics: newSelection });
   };
 
   // Clear all filters
   const clearAllFilters = () => {
     setUserSearchTerm('');
     setSelectedSites([]);
-    setSelectedCategories([]);
-    notifyFilterChange({ userSearch: '', sites: [], categories: [] });
+    setSelectedMetrics([]);
+    notifyFilterChange({ userSearch: '', sites: [], metrics: [] });
+  };
+
+  // Clear all metrics
+  const clearMetrics = () => {
+    setSelectedMetrics([]);
+    notifyFilterChange({ userSearch: userSearchTerm, sites: selectedSites, metrics: [] });
+  };
+
+  // Toggle entire metric category
+  const toggleMetricCategory = (category) => {
+    const categoryMetrics = esgMockData.metrics.filter(m => m.category === category);
+    const allSelected = categoryMetrics.every(m => selectedMetrics.some(sm => sm.id === m.id));
+    
+    let newSelection;
+    if (allSelected) {
+      // Remove all metrics in this category
+      newSelection = selectedMetrics.filter(m => m.category !== category);
+    } else {
+      // Add all metrics in this category
+      newSelection = [...selectedMetrics];
+      categoryMetrics.forEach(metric => {
+        if (!newSelection.some(m => m.id === metric.id)) {
+          newSelection.push(metric);
+        }
+      });
+    }
+    
+    setSelectedMetrics(newSelection);
+    notifyFilterChange({ userSearch: userSearchTerm, sites: selectedSites, metrics: newSelection });
+  };
+
+  // Check if a category is fully selected
+  const isCategorySelected = (category) => {
+    const categoryMetrics = esgMockData.metrics.filter(m => m.category === category);
+    return categoryMetrics.length > 0 && categoryMetrics.every(m => selectedMetrics.some(sm => sm.id === m.id));
   };
 
   // Notify parent of filter changes
@@ -148,7 +210,7 @@ const AssignmentFilters = ({ onFilterChange }) => {
     }
     
     setSelectedSites(newSelection);
-    notifyFilterChange({ userSearch: userSearchTerm, sites: newSelection, categories: selectedCategories });
+    notifyFilterChange({ userSearch: userSearchTerm, sites: newSelection, metrics: selectedMetrics });
   };
 
   // Check if a site group is fully selected
@@ -157,7 +219,7 @@ const AssignmentFilters = ({ onFilterChange }) => {
     return matchingSites.length > 0 && matchingSites.every(site => selectedSites.some(s => s.id === site.id));
   };
 
-  const hasActiveFilters = userSearchTerm || selectedSites.length > 0 || selectedCategories.length > 0;
+  const hasActiveFilters = userSearchTerm || selectedSites.length > 0 || selectedMetrics.length > 0;
 
   return (
     <div className="space-y-4">
@@ -439,8 +501,8 @@ const AssignmentFilters = ({ onFilterChange }) => {
           )}
         </div>
 
-        {/* Metric Category Filter */}
-        <div className="relative" ref={categoryDropdownRef}>
+        {/* Metric Filter */}
+        <div className="relative" ref={metricDropdownRef}>
           <label 
             style={{
               fontSize: '14px',
@@ -452,11 +514,11 @@ const AssignmentFilters = ({ onFilterChange }) => {
               marginBottom: '8px'
             }}
           >
-            Filter by Metric Category
+            Filter by Metric
           </label>
           
           <button
-            onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+            onClick={() => setIsMetricDropdownOpen(!isMetricDropdownOpen)}
             className="w-full flex items-center justify-between"
             style={{
               borderRadius: '4px',
@@ -468,19 +530,19 @@ const AssignmentFilters = ({ onFilterChange }) => {
               fontSize: '14px',
               lineHeight: '20px',
               letterSpacing: '-0.03em',
-              color: selectedCategories.length > 0 ? 'rgba(26, 26, 26, 1)' : 'rgba(87, 87, 87, 1)',
+              color: selectedMetrics.length > 0 ? 'rgba(26, 26, 26, 1)' : 'rgba(87, 87, 87, 1)',
               cursor: 'pointer'
             }}
           >
             <span>
-              {selectedCategories.length > 0 
-                ? `${selectedCategories.length} categor${selectedCategories.length !== 1 ? 'ies' : 'y'} selected`
-                : 'All Categories'}
+              {selectedMetrics.length > 0 
+                ? `${selectedMetrics.length} metric${selectedMetrics.length !== 1 ? 's' : ''} selected`
+                : 'All Metrics'}
             </span>
             <ArrowDownSLineIcon style={{ width: '20px', height: '20px', color: 'rgba(87, 87, 87, 1)' }} />
           </button>
 
-          {isCategoryDropdownOpen && (
+          {isMetricDropdownOpen && (
             <div 
               className="absolute z-10 w-full mt-2"
               style={{
@@ -488,36 +550,71 @@ const AssignmentFilters = ({ onFilterChange }) => {
                 border: '1px solid rgba(229, 229, 229, 1)',
                 borderRadius: '8px',
                 boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.1)',
-                maxHeight: '300px',
+                maxHeight: '400px',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column'
               }}
             >
-              {/* Category chips */}
-              <div style={{ padding: '12px' }}>
-                <div 
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    lineHeight: '14px',
-                    letterSpacing: '0.02em',
-                    color: 'rgba(87, 87, 87, 1)',
-                    textTransform: 'uppercase',
-                    marginBottom: '8px'
-                  }}
-                >
-                  Categories
+              {/* Search input */}
+              <div style={{ padding: '12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
+                <div className="relative">
+                  <SearchLineIcon 
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2" 
+                    style={{ width: '16px', height: '16px', color: 'rgba(87, 87, 87, 1)' }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="Search metrics..."
+                    value={metricSearchTerm}
+                    onChange={(e) => setMetricSearchTerm(e.target.value)}
+                    className="w-full focus:outline-none"
+                    style={{
+                      borderRadius: '4px',
+                      height: '36px',
+                      paddingLeft: '32px',
+                      paddingRight: '8px',
+                      backgroundColor: 'rgba(249, 249, 249, 1)',
+                      border: '1px solid rgba(229, 229, 229, 1)',
+                      fontSize: '14px',
+                      lineHeight: '20px',
+                      letterSpacing: '-0.03em'
+                    }}
+                  />
                 </div>
+              </div>
+
+              {/* Clear button */}
+              {selectedMetrics.length > 0 && (
+                <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
+                  <button
+                    onClick={clearMetrics}
+                    className="flex items-center"
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#073370',
+                      cursor: 'pointer',
+                      gap: '4px'
+                    }}
+                  >
+                    <CloseLineIcon style={{ width: '16px', height: '16px' }} />
+                    Clear all
+                  </button>
+                </div>
+              )}
+
+              {/* Category chips - above metric list */}
+              <div style={{ padding: '12px', borderBottom: '1px solid rgba(229, 229, 229, 1)', backgroundColor: 'rgba(249, 249, 249, 1)' }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {categories.map(category => {
-                    const isSelected = selectedCategories.includes(category);
+                  {metricCategories.map(category => {
+                    const isSelected = isCategorySelected(category);
                     return (
                       <button
                         key={category}
                         onClick={(e) => {
                           e.stopPropagation();
-                          toggleCategory(category);
+                          toggleMetricCategory(category);
                         }}
                         style={{
                           padding: '4px 10px',
@@ -549,31 +646,82 @@ const AssignmentFilters = ({ onFilterChange }) => {
                 </div>
               </div>
 
-              {/* Clear button */}
-              {selectedCategories.length > 0 && (
-                <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(229, 229, 229, 1)' }}>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedCategories([]);
-                      notifyFilterChange({ userSearch: userSearchTerm, sites: selectedSites, categories: [] });
-                    }}
-                    className="flex items-center"
+              {/* Metric list grouped by category */}
+              <div style={{ overflowY: 'auto', maxHeight: '280px' }}>
+                {Object.entries(groupedMetrics).map(([category, metrics]) => (
+                  <div key={category}>
+                    {/* Category header */}
+                    <div 
+                      style={{
+                        padding: '8px 12px',
+                        backgroundColor: 'rgba(245, 245, 245, 1)',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        lineHeight: '16px',
+                        letterSpacing: '-0.02em',
+                        color: 'rgba(87, 87, 87, 1)',
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      {category}
+                    </div>
+                    {/* Metrics in category */}
+                    {metrics.map(metric => {
+                      const isSelected = selectedMetrics.some(m => m.id === metric.id);
+                      return (
+                        <div
+                          key={metric.id}
+                          onClick={() => toggleMetric(metric)}
+                          className="flex items-center cursor-pointer hover:bg-gray-50"
+                          style={{
+                            padding: '10px 12px',
+                            gap: '8px',
+                            borderBottom: '1px solid rgba(245, 245, 245, 1)'
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleMetric(metric)}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              cursor: 'pointer',
+                              accentColor: '#073370',
+                              borderRadius: '8px',
+                              flexShrink: 0
+                            }}
+                          />
+                          <div 
+                            style={{
+                              fontSize: '14px',
+                              fontWeight: 400,
+                              lineHeight: '20px',
+                              letterSpacing: '-0.03em',
+                              color: 'rgba(26, 26, 26, 1)'
+                            }}
+                          >
+                            {metric.name}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
+                {filteredMetrics.length === 0 && (
+                  <div 
                     style={{
-                      fontSize: '14px',
-                      fontWeight: 500,
-                      color: '#073370',
-                      cursor: 'pointer',
-                      gap: '4px',
-                      backgroundColor: 'transparent',
-                      border: 'none'
+                      padding: '20px',
+                      textAlign: 'center',
+                      color: 'rgba(87, 87, 87, 1)',
+                      fontSize: '14px'
                     }}
                   >
-                    <CloseLineIcon style={{ width: '16px', height: '16px' }} />
-                    Clear all
-                  </button>
-                </div>
-              )}
+                    No metrics found
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
