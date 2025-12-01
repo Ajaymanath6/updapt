@@ -88,7 +88,7 @@ const Sidebar = () => {
             to={link.to}
             end={link.to === '/'}
             className={({ isActive }) =>
-              `flex items-center ${isCollapsed ? 'justify-center' : 'gap-2'} rounded-lg transition-all duration-200 relative group ${
+              `flex items-center ${isCollapsed ? 'justify-center' : 'gap-2'} transition-all duration-200 relative group ${
                 isActive
                   ? 'text-white'
                   : 'text-gray-600'
@@ -100,6 +100,7 @@ const Sidebar = () => {
               padding: isCollapsed ? '8px' : '8px 12px',
               borderLeft: isActive ? '2px solid #073370' : '2px solid transparent',
               backgroundColor: isActive ? '#073370' : 'transparent',
+              borderRadius: '4px',
               display: 'flex',
               justifyContent: isCollapsed ? 'center' : 'flex-start',
               alignItems: 'center',
