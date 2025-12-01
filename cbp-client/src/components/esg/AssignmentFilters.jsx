@@ -330,7 +330,33 @@ const AssignmentFilters = ({ onFilterChange }) => {
                 </div>
               </div>
 
-              <div style={{ overflowY: 'auto', maxHeight: '240px' }}>
+              {/* Clear button */}
+              {selectedSites.length > 0 && (
+                <div style={{ padding: '8px 12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedSites([]);
+                      notifyFilterChange({ userSearch: userSearchTerm, sites: [], categories: selectedCategories });
+                    }}
+                    className="flex items-center"
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#073370',
+                      cursor: 'pointer',
+                      gap: '4px',
+                      backgroundColor: 'transparent',
+                      border: 'none'
+                    }}
+                  >
+                    <CloseLineIcon style={{ width: '16px', height: '16px' }} />
+                    Clear all
+                  </button>
+                </div>
+              )}
+
+              <div style={{ overflowY: 'auto', maxHeight: '180px' }}>
                 {esgMockData.sites.map(site => {
                   const isSelected = selectedSites.some(s => s.id === site.id);
                   return (
@@ -441,53 +467,91 @@ const AssignmentFilters = ({ onFilterChange }) => {
                 borderRadius: '8px',
                 boxShadow: '0px 4px 12px 0px rgba(0, 0, 0, 0.1)',
                 maxHeight: '300px',
-                overflow: 'hidden'
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column'
               }}
             >
-              {categories.map(category => {
-                const isSelected = selectedCategories.includes(category);
-                return (
-                  <div
-                    key={category}
-                    onClick={() => toggleCategory(category)}
-                    className="flex items-center cursor-pointer hover:bg-gray-50"
+              {/* Category chips */}
+              <div style={{ padding: '12px' }}>
+                <div 
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    lineHeight: '14px',
+                    letterSpacing: '0.02em',
+                    color: 'rgba(87, 87, 87, 1)',
+                    textTransform: 'uppercase',
+                    marginBottom: '8px'
+                  }}
+                >
+                  Categories
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {categories.map(category => {
+                    const isSelected = selectedCategories.includes(category);
+                    return (
+                      <button
+                        key={category}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCategory(category);
+                        }}
+                        style={{
+                          padding: '4px 10px',
+                          borderRadius: '12px',
+                          backgroundColor: isSelected ? '#073370' : 'rgba(7, 51, 112, 0.08)',
+                          border: isSelected ? '1px solid #073370' : '1px solid rgba(7, 51, 112, 0.2)',
+                          fontSize: '12px',
+                          fontWeight: 500,
+                          color: isSelected ? '#ffffff' : '#073370',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          whiteSpace: 'nowrap'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.15)';
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          if (!isSelected) {
+                            e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.08)';
+                          }
+                        }}
+                      >
+                        {category}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Clear button */}
+              {selectedCategories.length > 0 && (
+                <div style={{ padding: '8px 12px', borderTop: '1px solid rgba(229, 229, 229, 1)' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCategories([]);
+                      notifyFilterChange({ userSearch: userSearchTerm, sites: selectedSites, categories: [] });
+                    }}
+                    className="flex items-center"
                     style={{
-                      padding: '10px 12px',
-                      gap: '8px',
-                      borderBottom: '1px solid rgba(245, 245, 245, 1)'
+                      fontSize: '14px',
+                      fontWeight: 500,
+                      color: '#073370',
+                      cursor: 'pointer',
+                      gap: '4px',
+                      backgroundColor: 'transparent',
+                      border: 'none'
                     }}
                   >
-                    <div 
-                      style={{
-                        width: '18px',
-                        height: '18px',
-                        borderRadius: '4px',
-                        border: '2px solid ' + (isSelected ? '#073370' : 'rgba(229, 229, 229, 1)'),
-                        backgroundColor: isSelected ? '#073370' : 'transparent',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}
-                    >
-                      {isSelected && (
-                        <CheckLineIcon style={{ width: '12px', height: '12px', color: 'white' }} />
-                      )}
-                    </div>
-                    <div 
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: 500,
-                        lineHeight: '20px',
-                        letterSpacing: '-0.03em',
-                        color: 'rgba(26, 26, 26, 1)'
-                      }}
-                    >
-                      {category}
-                    </div>
-                  </div>
-                );
-              })}
+                    <CloseLineIcon style={{ width: '16px', height: '16px' }} />
+                    Clear all
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </div>
