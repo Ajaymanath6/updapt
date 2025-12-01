@@ -23,6 +23,30 @@ const AssignmentFilters = ({ onFilterChange }) => {
   const siteDropdownRef = useRef(null);
   const categoryDropdownRef = useRef(null);
 
+  // Define site groups for quick filtering
+  const siteGroups = useMemo(() => [
+    { 
+      id: 'north-region', 
+      label: 'North Region', 
+      filter: (site) => site.group === 'North Region' 
+    },
+    { 
+      id: 'south-region', 
+      label: 'South Region', 
+      filter: (site) => site.group === 'South Region' 
+    },
+    { 
+      id: 'offices', 
+      label: 'Office Sites', 
+      filter: (site) => site.name.includes('Office') 
+    },
+    { 
+      id: 'warehouses', 
+      label: 'Warehouses', 
+      filter: (site) => site.name.includes('Warehouse') 
+    },
+  ], []);
+
   // Handle click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -102,6 +126,20 @@ const AssignmentFilters = ({ onFilterChange }) => {
     if (onFilterChange) {
       onFilterChange(filters);
     }
+  };
+
+  // Apply site group filter
+  const applySiteGroup = (group) => {
+    const matchingSites = esgMockData.sites.filter(group.filter);
+    // Add sites that aren't already selected
+    const newSelection = [...selectedSites];
+    matchingSites.forEach(site => {
+      if (!newSelection.some(s => s.id === site.id)) {
+        newSelection.push(site);
+      }
+    });
+    setSelectedSites(newSelection);
+    notifyFilterChange({ userSearch: userSearchTerm, sites: newSelection, categories: selectedCategories });
   };
 
   const hasActiveFilters = userSearchTerm || selectedSites.length > 0 || selectedCategories.length > 0;
@@ -244,7 +282,55 @@ const AssignmentFilters = ({ onFilterChange }) => {
                 flexDirection: 'column'
               }}
             >
-              <div style={{ overflowY: 'auto', maxHeight: '300px' }}>
+              {/* Site group chips */}
+              <div style={{ padding: '12px', borderBottom: '1px solid rgba(229, 229, 229, 1)' }}>
+                <div 
+                  style={{
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    lineHeight: '14px',
+                    letterSpacing: '0.02em',
+                    color: 'rgba(87, 87, 87, 1)',
+                    textTransform: 'uppercase',
+                    marginBottom: '8px'
+                  }}
+                >
+                  Quick Filters
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {siteGroups.map(group => (
+                    <button
+                      key={group.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        applySiteGroup(group);
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        borderRadius: '12px',
+                        backgroundColor: 'rgba(7, 51, 112, 0.08)',
+                        border: '1px solid rgba(7, 51, 112, 0.2)',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: '#073370',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        whiteSpace: 'nowrap'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.15)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = 'rgba(7, 51, 112, 0.08)';
+                      }}
+                    >
+                      + {group.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ overflowY: 'auto', maxHeight: '240px' }}>
                 {esgMockData.sites.map(site => {
                   const isSelected = selectedSites.some(s => s.id === site.id);
                   return (
